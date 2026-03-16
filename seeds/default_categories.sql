@@ -1,0 +1,25 @@
+-- Default expense and income categories
+-- These are seeded per-user by the backend when a new user registers.
+-- This file documents the canonical default set.
+
+-- EXPENSE CATEGORIES
+-- Food (subs: Breakfast, Lunch, Dinner, Hot Beverage, Cold Beverages, Alcoholic Beverages, Junk Snacks, Healthy Snacks, Online Orders)
+-- Entertainment (subs: Theater, Stage Shows, Passive Games, OTT Subscriptions, DTH)
+-- Household (subs: Appliances, Furnitures, Kitchen Items, Decoratives, Repair and Maintenance, Utility Items, Rent)
+-- Health (subs: Gym, Active Games, Supplements, Medicines, Doctor Consultation, Labs and Tests)
+-- Investments (subs: Real Estate, Physical Gold, ETF, Stocks, Mutual Funds, Bonds, Digital Gold, Life Insurance, Health Insurance, Knowledge)
+-- Personal Care (subs: Clothing, Clothing Accessories, Cosmetics, Parlour, Beauty Accessories)
+-- Home Provisions (subs: Online Grocery, Shop Grocery, Online Veggies, Shop Veggies, Online Fruits, Shop Fruits, Dairy, Meat)
+-- Recharges (subs: Mobile Recharges, Wifi Bill)
+-- Debts (subs: Housing EMI, Credit Card EMI, Gold EMI, Friends, Family, Personal EMI)
+-- Gifts (subs: Family, Friends, Public)
+-- Travel (subs: Train, Bus, Car, Flight, Taxi, Toll)
+-- Vehicle (subs: Car Fuel, Bike Fuel, Car Maintenance, Bike Maintenance, Others)
+-- Vacation and Outing (subs: Train, Bus, Car, Toll, Flight, Taxi, Entrance Fee, Breakfast, Lunch, Dinner, Snacks, Alcoholic Beverages)
+-- Government (subs: ITR, Property Tax, Government Fees)
+-- Home Utilities (subs: EB, Gas)
+-- Others (no subs)
+-- Credit Card (no subs)
+
+-- INCOME CATEGORIES
+-- Salary, Business, Freelancing, Debt and Loan, Gifts and Rewards, Others
