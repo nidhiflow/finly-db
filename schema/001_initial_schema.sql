@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     email_verified BOOLEAN DEFAULT false,
+    phone TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -38,13 +39,14 @@ CREATE TABLE IF NOT EXISTS transactions (
     type TEXT NOT NULL,
     amount NUMERIC NOT NULL,
     category_id TEXT REFERENCES categories(id) ON DELETE SET NULL,
-    account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    account_id TEXT REFERENCES accounts(id) ON DELETE CASCADE,
     to_account_id TEXT REFERENCES accounts(id) ON DELETE SET NULL,
     date TEXT NOT NULL,
     note TEXT,
     photo TEXT,
     repeat_group_id TEXT,
     repeat_end_date TEXT,
+    is_recurring BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -113,3 +115,13 @@ CREATE TABLE IF NOT EXISTS bookmarks (
     created_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(user_id, transaction_id)
 );
+
+-- Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
+CREATE INDEX IF NOT EXISTS idx_transactions_category_id ON transactions(category_id);
+CREATE INDEX IF NOT EXISTS idx_categories_user_id ON categories(user_id);
+CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_budgets_user_id ON budgets(user_id);
+CREATE INDEX IF NOT EXISTS idx_savings_goals_user_id ON savings_goals(user_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_is_recurring ON transactions(is_recurring);
