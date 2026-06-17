@@ -1,4 +1,5 @@
 -- Migration: Add phone and email_verified columns, is_recurring column, and performance indexes
+-- Trigger workflow run
 
 -- Alter users table
 ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT false;
