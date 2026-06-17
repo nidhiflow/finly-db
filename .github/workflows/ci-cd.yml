@@ -96,8 +96,11 @@ jobs:
             exit 1
           fi
           
+          # Strip trailing/leading whitespaces, carriage returns, and newlines
+          SANITIZED_DATABASE_URL=$(echo "$DATABASE_URL" | tr -d '\r\n[:space:]')
+          
           # Clean DATABASE_URL by removing channel_binding parameter for compatibility
-          CLEAN_DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/[?&]channel_binding=[^&]*//g')
+          CLEAN_DATABASE_URL=$(echo "$SANITIZED_DATABASE_URL" | sed 's/[?&]channel_binding=[^&]*//g')
           
           # Neon compute wake-up retry loop (handles cold starts)
           echo "Connecting to Neon Database..."
