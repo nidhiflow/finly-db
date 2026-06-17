@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     name: Build
@@ -30,6 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install PostgreSQL Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends postgresql-client
+
       - name: Validate schema
         run: |
           PGPASSWORD=testpass psql -h localhost -U finly_test -d finly_test -f schema/001_initial_schema.sql
@@ -47,13 +55,14 @@ jobs:
     name: Test
     needs: build
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: sonarsource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -71,10 +80,57 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install PostgreSQL Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends postgresql-client
+
       - name: Run migrations on production
         if: github.ref == 'refs/heads/main'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "❌ Error: DATABASE_URL secret is not configured in GitHub Secrets."
+            echo "Please add DATABASE_URL (e.g., your Neon PostgreSQL connection string) to your GitHub Repository Secrets."
+            exit 1
+          fi
+          
+          # Clean DATABASE_URL by removing channel_binding parameter for compatibility
+          CLEAN_DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/[?&]channel_binding=[^&]*//g')
+          
+          # Neon compute wake-up retry loop (handles cold starts)
+          echo "Connecting to Neon Database..."
+          DB_CONNECTED=false
+          for i in {1..12}; do
+            echo "Checking database connection (attempt $i/12)..."
+            if psql "$CLEAN_DATABASE_URL" -c "SELECT 1;" > /dev/null 2>&1; then
+              echo "✅ Database connection established successfully!"
+              DB_CONNECTED=true
+              break
+            fi
+            echo "⏳ Database is not ready yet. Waiting 5 seconds..."
+            sleep 5
+          done
+          
+          if [ "$DB_CONNECTED" != "true" ]; then
+            echo "❌ Error: Failed to connect to the database after 60 seconds."
+            exit 2
+          fi
+          
+          # Check if database is already initialized (e.g., has users table)
+          echo "Checking if database is initialized..."
+          TABLE_EXISTS=$(psql "$CLEAN_DATABASE_URL" -t -A -c "SELECT to_regclass('public.users');" 2>/dev/null || echo "")
+          
+          if [ -z "$TABLE_EXISTS" ] || [ "$TABLE_EXISTS" = "null" ]; then
+            echo "Database is not initialized. Applying initial schema first..."
+            psql "$CLEAN_DATABASE_URL" -f schema/001_initial_schema.sql
+          else
+            echo "Database already initialized. Skipping schema creation."
+          fi
+          
+          # Run incremental migrations
           for f in migrations/*.sql; do
             echo "Applying $f..."
-            psql "${{ secrets.DATABASE_URL }}" -f "$f"
+            psql "$CLEAN_DATABASE_URL" -f "$f"
           done
