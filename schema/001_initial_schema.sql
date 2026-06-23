@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     type TEXT NOT NULL,
     amount NUMERIC NOT NULL,
     category_id TEXT REFERENCES categories(id) ON DELETE SET NULL,
+    subcategory_id TEXT,
     account_id TEXT REFERENCES accounts(id) ON DELETE CASCADE,
     to_account_id TEXT REFERENCES accounts(id) ON DELETE SET NULL,
     date TEXT NOT NULL,
@@ -47,6 +48,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     repeat_group_id TEXT,
     repeat_end_date TEXT,
     is_recurring BOOLEAN DEFAULT false,
+    repeat_frequency TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
