@@ -49,6 +49,15 @@ CREATE TABLE IF NOT EXISTS transactions (
     repeat_end_date TEXT,
     is_recurring BOOLEAN DEFAULT false,
     repeat_frequency TEXT,
+    repeat_interval INTEGER,
+    repeat_day_of_month INTEGER,
+    next_due_date TEXT,
+    repeat_end_type TEXT,
+    repeat_occurrences_total INTEGER,
+    repeat_occurrences_current INTEGER DEFAULT 0,
+    auto_create BOOLEAN DEFAULT true,
+    reminder_days_before INTEGER,
+    status TEXT DEFAULT 'active',
     created_at TIMESTAMP DEFAULT NOW()
 );
 
